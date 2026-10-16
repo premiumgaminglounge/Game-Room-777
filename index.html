@@ -53,6 +53,7 @@ nav a{font-size:12px;font-weight:bold;color:#e7d7a5}
 .fallback{width:67px;height:67px;border-radius:14px;margin:2px auto 10px;display:grid;place-items:center;background:linear-gradient(135deg,#f9df86,#986419);color:#17120a;font-size:23px;font-weight:1000}
 .game-card h3{font-size:14px;margin:0 0 7px;min-height:31px;display:flex;align-items:center;justify-content:center;overflow-wrap:anywhere}
 .game-card p{font-size:11px;color:#b5c0cf;margin:0 0 10px}
+.activity{color:#4df1b2!important;font-weight:bold;min-height:13px}
 .open-btn{display:block;width:100%;padding:11px 3px;border:1px solid #d9ae48;border-radius:8px;background:linear-gradient(135deg,#ffe9a0,#d6a43b);color:#17120a;font-size:10px;font-weight:1000}
 .empty{grid-column:1/-1;text-align:center;padding:28px;color:#b5bdca}
 .details{max-width:700px;margin:18px auto;background:#121b29;border:1px solid #354767;border-radius:15px;padding:22px;text-align:center}
@@ -67,10 +68,8 @@ footer{padding:20px 12px;text-align:center;background:#101722;border-top:1px sol
 @media(min-width:900px){.games{grid-template-columns:repeat(4,minmax(0,1fr))}}
 </style>
 </head>
-
 <body>
 
-<!-- Moving dollar/promo strip -->
 <div class="topbar">
  <div class="marquee">
   💵 DOLLAR HIGHLIGHTS • $25.00 • $75.00 • $120.00 • $45.00 • $90.00 • WELCOME BONUS 150% • GAME ROOM 777 •
@@ -79,7 +78,7 @@ footer{padding:20px 12px;text-align:center;background:#101722;border-top:1px sol
 </div>
 
 <header id="home">
- <span class="live"><span class="dot"></span> GAMING HUB</span>
+ <span class="live"><span class="dot"></span> LIVE GAMING HUB</span>
  <div class="brandmark">GR 777</div>
  <h1>GAME ROOM ONLINE CASINO 777</h1>
  <p>YOUR GAMING DESTINATION</p>
@@ -103,7 +102,6 @@ footer{padding:20px 12px;text-align:center;background:#101722;border-top:1px sol
  <span>EXPLORE GAMING PLATFORMS</span>
 </section>
 
-<!-- Moving game-logo strip -->
 <div class="ticker-wrap"><div class="ticker" id="tickerOne"></div></div>
 <div class="ticker-wrap" style="margin-top:-14px"><div class="ticker reverse" id="tickerTwo"></div></div>
 
@@ -214,20 +212,25 @@ function getFavicon(url){
 }
 function getInitials(name){
  return name.replace(/[^a-zA-Z0-9 ]/g,"").split(/\s+/)
-  .filter(Boolean).slice(0,2).map(w=>w[0]).join("").toUpperCase()||"G";
+ .filter(Boolean).slice(0,2).map(w=>w[0]).join("").toUpperCase()||"G";
 }
+
+const activityWords=["POPULAR PLATFORM","TRENDING NOW","EXPLORE PLATFORM","READY TO OPEN"];
 function renderGames(query=""){
  const grid=document.getElementById("gameGrid");
  grid.innerHTML="";
  const list=games.filter(g=>g[0].toLowerCase().includes(query.toLowerCase()));
  document.getElementById("gameCount").textContent=list.length+" PLATFORMS";
+
  if(!list.length){
   grid.innerHTML='<div class="empty">No games found. Try another search.</div>';
   return;
  }
- list.forEach(([name,url])=>{
+
+ list.forEach(([name,url],index)=>{
   const card=document.createElement("article");
   card.className="game-card";
+
   const img=document.createElement("img");
   img.className="game-logo";
   img.alt=name+" logo";
@@ -239,20 +242,26 @@ function renderGames(query=""){
    fallback.textContent=getInitials(name);
    this.replaceWith(fallback);
   };
+
   const title=document.createElement("h3");
   title.textContent=name;
+
   const info=document.createElement("p");
-  info.textContent="Gaming Platform";
+  info.className="activity";
+  info.textContent=activityWords[index%activityWords.length];
+
   const link=document.createElement("a");
   link.className="open-btn";
   link.href=url;
   link.target="_blank";
   link.rel="noopener noreferrer";
   link.textContent="OPEN PLATFORM ↗";
+
   card.append(img,title,info,link);
   grid.appendChild(card);
  });
 }
+
 function makeTicker(id){
  const ticker=document.getElementById(id);
  [...games,...games].forEach(([name,url])=>{
@@ -268,24 +277,46 @@ function makeTicker(id){
   ticker.appendChild(item);
  });
 }
-document.getElementById("searchBox").addEventListener("input",e=>renderGames(e.target.value.trim()));
+
+document.getElementById("searchBox").addEventListener("input",e=>{
+ renderGames(e.target.value.trim());
+});
 renderGames();
 makeTicker("tickerOne");
 makeTicker("tickerTwo");
 
-/* Crisp Live Chat */
-window.$crisp=window.$crisp||[];
-window.CRISP_WEBSITE_ID="cc20bafe-6ade-442e-80d7-bd00bbbc733e";
-(function(){
- const d=document,s=d.createElement("script");
- s.src="https://client.crisp.chat/l.js";
+/* Chaport Live Chat */
+(function(w,d,v3){
+ w.chaportConfig={
+  appId:"6acef8d367f574f2e93a4357"
+ };
+ if(w.chaport)return;
+ v3=w.chaport={};
+ v3._q=[];
+ v3._l={};
+ v3.q=function(){v3._q.push(arguments)};
+ v3.on=function(e,fn){
+  if(!v3._l[e])v3._l[e]=[];
+  v3._l[e].push(fn);
+ };
+ var s=d.createElement("script");
+ s.type="text/javascript";
  s.async=true;
- d.head.appendChild(s);
-})();
+ s.src="https://app.chaport.com/javascripts/insert.js";
+ var ss=d.getElementsByTagName("script")[0];
+ ss.parentNode.insertBefore(s,ss);
+})(window,document);
+
 function openLiveChat(){
- window.$crisp=window.$crisp||[];
- window.$crisp.push(["do","chat:open"]);
+ if(window.chaport && typeof window.chaport.open==="function"){
+  window.chaport.open();
+ }else if(window.chaport && typeof window.chaport.q==="function"){
+  window.chaport.q("open");
+ }else{
+  alert("Please wait for the Chaport chat button to load, then try again.");
+ }
 }
+
 function openWhatsApp(){
  window.open("https://wa.me/"+WHATSAPP_NUMBER,"_blank","noopener,noreferrer");
 }
@@ -307,7 +338,7 @@ async function installApp(){
   await deferredInstallPrompt.userChoice;
   deferredInstallPrompt=null;
  }else{
-  alert("Open this website in Chrome, tap the three dots ⋮, and select Install app or Add to Home screen. If the option is missing, make sure the manifest and service worker files are published.");
+  alert("Open this website in Chrome, tap the three dots ⋮, and select Install app or Add to Home screen. If the option is missing, check that manifest.webmanifest and sw.js exist in your GitHub repository.");
  }
 }
 if("serviceWorker" in navigator && location.protocol==="https:"){
@@ -315,6 +346,16 @@ if("serviceWorker" in navigator && location.protocol==="https:"){
   navigator.serviceWorker.register("./sw.js").catch(()=>{});
  });
 }
+
+/* Activity words change automatically */
+let activityIndex=0;
+setInterval(()=>{
+ const labels=document.querySelectorAll(".activity");
+ labels.forEach((label,index)=>{
+  label.textContent=activityWords[(activityIndex+index)%activityWords.length];
+ });
+ activityIndex=(activityIndex+1)%activityWords.length;
+},3500);
 </script>
 </body>
 </html>
